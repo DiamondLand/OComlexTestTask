@@ -1,15 +1,23 @@
 import requests
 
 from django.shortcuts import render
+
 from .models import City
+from .forms import CityForm
 
 
 def index(request):
     appid='89a0ebedfa3a05c7f1384f2de25ea2e6'
     url = 'https://api.openweathermap.org/data/2.5/weather?q={city}&appid={appid}&units=metric'
 
-    cities = City.objects.all()
-    all_cities = []
+    cities = City.objects.all() # Получаем все данные их базы
+    all_cities = [] #* Общий список данных о погоде для передачи на фронт
+
+    if request.method == 'POST':
+        form = CityForm(request.POST) #* Форма для вывода на фронт
+        form.save()
+
+    form = CityForm() # Очищаем форму
 
     for city in cities:
         weather_response = requests.get(url=url.format(city=city.name, appid=appid))
@@ -34,5 +42,5 @@ def index(request):
     return render(
         request=request,
         template_name='weather/index.html',
-        context={'all_info': all_cities}
+        context={'all_info': all_cities, 'form': form},
     )
