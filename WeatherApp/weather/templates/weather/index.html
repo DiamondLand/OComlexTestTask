@@ -33,15 +33,25 @@
                         <h2>Информация</h2>
                     </div>
                     <div class="card-body">
-                        <div class="alert alert-light">
-                            <b>Город:</b> {{info.city}}<br>
-                            <b>Температура:</b> {{info.temp}}<sup>0</sup><br>
-                            <img src="http://openweathermap.org/img/w/{{info.icon}}.png" alt="Фото погоды" class="img-thumbnail">
+                    {% for info in all_info %}
+                        <div class="col-12 mb-3">
+                            <div class="weather-card d-flex align-items-center">
+                                <div class="mr-3">
+                                    <b>Город:</b> {{info.city}}<br>
+                                    <b>Температура:</b> {{info.temp}}<sup>0</sup>
+                                </div>
+                                <img src="http://openweathermap.org/img/w/{{info.icon}}.png" alt="Фото погоды" class="img-thumbnail mx-3" style="max-width: 50px;">
+                            </div>
                         </div>
+                    {% endfor %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <!-- Подключение Bootstrap JS и jQuery (для интерактивных элементов, если необходимо) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
