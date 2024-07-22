@@ -1,104 +1,131 @@
 <!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather Application</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-</head>
-<body class="bg-light">
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-primary text-white text-center">
-                        <h2>Погода в вашем городе</h2>
-                    </div>
-                    <div class="card-body">
-                        <form action="" method="post">
-                            <div class="form-group">
-                                {% csrf_token %}
-                                <label for="city">Введите название города</label>
-                                {{ form.name }}
-                                <ul id="suggestions" class="list-group mt-2"></ul>
-                            </div>
-                            <button type="submit" name="send" class="btn btn-primary btn-block">Узнать погоду</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <html lang="ru">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Weather Application</title>
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+      <style>
+          #suggestions {
+              position: absolute;
+              z-index: 1000;
+              width: calc(100% - 1rem);
+          }
+          .suggestion-item {
+              cursor: pointer;
+          }
+          .suggestion-item:hover {
+              background-color: #f0f0f0;
+          }
+      </style>
+  </head>
+  <body class="bg-light">
+      <div class="container py-5">
+          <div class="row justify-content-center">
+              <div class="col-md-8">
+                  <div class="card shadow-sm">
+                      <div class="card-header bg-primary text-white text-center">
+                          <h2>Погода в вашем городе</h2>
+                      </div>
+                      <div class="card-body">
+                          <form action="" method="post">
+                              <div class="form-group position-relative">
+                                  {% csrf_token %}
+                                  <label for="city">Введите название города</label>
+                                  <input type="text" id="city" name="name" class="form-control" autocomplete="off" oninput="fetchCities(this.value)">
+                                  <ul id="suggestions" class="list-group mt-2" style="display: none;"></ul>
+                              </div>
+                              <button type="submit" name="send" class="btn btn-primary btn-block">Узнать погоду</button>
+                          </form>
+                      </div>
+                  </div>
+              </div>
+          </div>
 
-        {% if error_message %}
-        <div class="row justify-content-center mt-4">
-            <div class="col-md-8">
-                <div class="alert alert-danger">
-                    {{ error_message }}
-                </div>
-            </div>
-        </div>
-        {% endif %}
+          {% if error_message %}
+          <div class="row justify-content-center mt-4">
+              <div class="col-md-8">
+                  <div class="alert alert-danger">
+                      {{ error_message }}
+                  </div>
+              </div>
+          </div>
+          {% endif %}
 
-        <div class="row justify-content-center mt-4">
-            <div class="col-md-8">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-success text-white text-center">
-                        <h2>Информация</h2>
-                    </div>
-                    <div class="card-body">
-                    {% for info in all_info %}
-                        <div class="col-12 mb-3">
-                            <div class="weather-card d-flex align-items-center">
-                                <div class="mr-3">
-                                    <b>Город:</b> {{ info.city }}<br>
-                                    <b>Температура:</b> {{ info.temp }}<sup>0</sup><br>
-                                    <b>Запросили раз:</b> {{ info.requests|default:0 }}
-                                </div>
-                                <img src="https:{{ info.icon }}" alt="N/A" class="img-thumbnail mx-3" style="max-width: 50px;">
-                            </div>
-                        </div>
-                    {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+          <div class="row justify-content-center mt-4">
+              <div class="col-md-8">
+                  <div class="card shadow-sm">
+                      <div class="card-header bg-success text-white text-center">
+                          <h2>Информация</h2>
+                      </div>
+                      <div class="card-body">
+                      {% for info in all_info %}
+                          <div class="col-12 mb-3">
+                              <div class="weather-card d-flex align-items-center">
+                                  <div class="mr-3">
+                                      <b>Город:</b> {{ info.city }}<br>
+                                      <b>Температура:</b> {{ info.temp }}<sup>0</sup><br>
+                                      <b>Запросили раз:</b> {{ info.requests|default:0 }}
+                                  </div>
+                                  <img src="https:{{ info.icon }}" alt="N/A" class="img-thumbnail mx-3" style="max-width: 50px;">
+                              </div>
+                          </div>
+                      {% endfor %}
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
 
-    <!-- Подключение jQuery и Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+      <!-- Подключение jQuery и Bootstrap JS -->
+      <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+      <script>
+          function fetchCities(query) {
+              const suggestions = document.getElementById('suggestions');
+              suggestions.innerHTML = '';
+              if (query.length === 0) {
+                  suggestions.style.display = 'none';
+                  return;
+              }
+            
+            // kavad25542@padvn.com
+              const apiUrl = `http://api.geonames.org/searchJSON?username=kavad25542&formatted=true&country=RU&name_startsWith=${query}&maxRows=10`;
 
-    <!-- Custom JS for Autocomplete -->
-    <script>
-        $(document).ready(function() {
-            $('#city').on('input', function() {
-                let query = $(this).val();
-                if (query.length > 1) {
-                    $.ajax({
-                        url: `https://wft-geo-db.p.rapidapi.com/v1/geo/cities?namePrefix=${query}`,
-                        method: 'GET',
-                        headers: {
-                            'X-RapidAPI-Key': 'aaa4a96984msh7faf0016ed74f93p1838d2jsn2fcf90f4e8fa', 
-                            'X-RapidAPI-Host': 'wft-geo-db.p.rapidapi.com'
-                        },
-                        success: function(data) {
-                            let suggestions = data.data;
-                            let suggestionList = $('#suggestions');
-                            suggestionList.empty();
-                            suggestions.forEach(function(city) {
-                                suggestionList.append(`<li class="list-group-item suggestion-item">${city.city}, ${city.country}</li>`);
-                            });
-                        }
-                    });
-                }
-            });
+              fetch(apiUrl)
+                  .then(response => response.json())
+                  .then(data => {
+                      if (data && data.geonames.length > 0) {
+                          data.geonames.forEach(city => {
+                              const li = document.createElement('li');
+                              li.textContent = city.name; // Название города
+                              li.className = 'list-group-item suggestion-item';
+                              li.onclick = () => selectCity(city.name);
+                              suggestions.appendChild(li);
+                          });
+                          suggestions.style.display = 'block';
+                      } else {
+                          suggestions.style.display = 'none';
+                      }
+                  })
+                  .catch(error => {
+                      console.error('Ошибка при получении данных:', error);
+                      suggestions.style.display = 'none';
+                  });
+          }
 
-            $(document).on('click', '.suggestion-item', function() {
-                $('#city').val($(this).text());
-                $('#suggestions').empty();
-            });
-        });
-    </script>
-</body>
-</html>
+          function selectCity(city) {
+              document.getElementById('city').value = city;
+              document.getElementById('suggestions').style.display = 'none';
+          }
+
+          document.addEventListener('click', function(event) {
+              const suggestions = document.getElementById('suggestions');
+              if (!suggestions.contains(event.target) && event.target.id !== 'city') {
+                  suggestions.style.display = 'none';
+              }
+          });
+      </script>
+  </body>
+  </html>
