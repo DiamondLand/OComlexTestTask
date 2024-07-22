@@ -7,7 +7,7 @@ from .forms import CityForm
 
 
 def index(request):
-    appid='89a0ebedfa3a05c7f1384f2de25ea2e6'
+    appid='c56398aa9dd4ea5e0854302e39acf5a5'
     url = 'https://api.openweathermap.org/data/2.5/weather?q={city}&appid={appid}&units=metric'
 
     cities = City.objects.all() # Получаем все данные их базы
@@ -21,7 +21,6 @@ def index(request):
 
     for city in cities:
         weather_response = requests.get(url=url.format(city=city.name, appid=appid))
-
         if weather_response.status_code != 200 or 'error' in weather_response.json():
             weather_json = weather_response.json()
             city_info = {
@@ -29,7 +28,7 @@ def index(request):
                 'temp': None,
                 'icon': weather_json['error']
             }
-        else:
+        elif weather_response.json():
             weather_json = weather_response.json()
             city_info = {
                 'city': city.name,
