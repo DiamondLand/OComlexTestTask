@@ -52,9 +52,9 @@
                                 <div class="mr-3">
                                     <b>Город:</b> {{ info.city }}<br>
                                     <b>Температура:</b> {{ info.temp }}<sup>0</sup><br>
-                                    <b>Запросили раз:</b> {{ info.requests|default:0 }}  <!-- Убедитесь, что поле requests существует -->
+                                    <b>Запросили раз:</b> {{ info.requests|default:0 }}
                                 </div>
-                                <img src="https:{{ info.icon }}" alt="Иконка погоды" class="img-thumbnail mx-3" style="max-width: 50px;">
+                                <img src="https:{{ info.icon }}" alt="N/A" class="img-thumbnail mx-3" style="max-width: 50px;">
                             </div>
                         </div>
                     {% endfor %}
@@ -72,14 +72,14 @@
     <!-- Custom JS for Autocomplete -->
     <script>
         $(document).ready(function() {
-            $('#id_name').on('input', function() {
+            $('#city').on('input', function() {
                 let query = $(this).val();
                 if (query.length > 1) {
                     $.ajax({
                         url: `https://wft-geo-db.p.rapidapi.com/v1/geo/cities?namePrefix=${query}`,
                         method: 'GET',
                         headers: {
-                            'X-RapidAPI-Key': 'your-rapidapi-key', 
+                            'X-RapidAPI-Key': 'aaa4a96984msh7faf0016ed74f93p1838d2jsn2fcf90f4e8fa', 
                             'X-RapidAPI-Host': 'wft-geo-db.p.rapidapi.com'
                         },
                         success: function(data) {
@@ -95,7 +95,7 @@
             });
 
             $(document).on('click', '.suggestion-item', function() {
-                $('#id_name').val($(this).text());
+                $('#city').val($(this).text());
                 $('#suggestions').empty();
             });
         });
