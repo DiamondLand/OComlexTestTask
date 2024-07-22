@@ -1,16 +1,18 @@
 import requests
+
 from django.shortcuts import render
+
 from .models import City
 from .forms import CityForm
+
 
 def index(request):
     api_key = 'c269502293174e07abe130103242207'
     url = 'https://api.weatherapi.com/v1/current.json?key={api_key}&q={city}&aqi=no'
 
-    cities = City.objects.all()  # Получаем все данные из базы
-    all_cities = []  # Общий список данных о погоде для передачи на фронт
+    cities = City.objects.all()  #* Получаем все данные из базы
+    all_cities = []  #* Общий список данных о погоде для передачи на фронт
     error_message = None
-    success_message = None
 
     if request.method == 'POST':
         form = CityForm(request.POST)
@@ -58,7 +60,6 @@ def index(request):
         context={
             'all_info': all_cities,
             'form': form,
-            'error_message': error_message,
-            'success_message': success_message
+            'error_message': error_message
         },
     )
