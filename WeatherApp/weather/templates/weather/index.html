@@ -19,7 +19,7 @@
                             <div class="form-group">
                                 {% csrf_token %}
                                 <label for="city">Введите название города</label>
-                                {{ form.name|add_class:"form-control" }}  <!-- Добавляем класс для стилизации -->
+                                {{ form.name }}
                                 <ul id="suggestions" class="list-group mt-2"></ul>
                             </div>
                             <button type="submit" name="send" class="btn btn-primary btn-block">Узнать погоду</button>

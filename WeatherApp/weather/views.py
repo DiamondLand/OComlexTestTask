@@ -14,15 +14,13 @@ def index(request):
 
     if request.method == 'POST':
         form = CityForm(request.POST)
-        if form.is_valid():
-            city_name = form.cleaned_data['name']
+        city_name = form.cleaned_data.get('name') if form.is_valid() else request.POST.get('name')
+        
+        # Увеличиваем счетчик запросов, если город существует
+        if city_name:
             city, created = City.objects.get_or_create(name=city_name)
-            if created:
-                success_message = f"Город '{city_name}' успешно добавлен!"
-            else:
-                error_message = f"Город '{city_name}' уже существует."
-        else:
-            error_message = "Форма недействительна. Ошибки: " + str(form.errors)
+            city.request_count += 1
+            city.save()
 
     form = CityForm()  # Очищаем форму
 
@@ -35,7 +33,8 @@ def index(request):
                 city_info = {
                     'city': city.name,
                     'temp': weather_json['current']['temp_c'],
-                    'icon': weather_json['current']['condition']['icon']
+                    'icon': weather_json['current']['condition']['icon'],
+                    'requests': city.request_count
                 }
             else:
                 city_info = {
