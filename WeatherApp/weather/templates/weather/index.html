@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,8 +19,8 @@
                             <div class="form-group">
                                 {% csrf_token %}
                                 <label for="city">Введите название города</label>
-                                {{ form.name }}
-                                <ul id="suggestions" class="list-group"></ul>
+                                {{ form.name|add_class:"form-control" }}  <!-- Добавляем класс для стилизации -->
+                                <ul id="suggestions" class="list-group mt-2"></ul>
                             </div>
                             <button type="submit" name="send" class="btn btn-primary btn-block">Узнать погоду</button>
                         </form>
@@ -28,6 +28,11 @@
                 </div>
             </div>
         </div>
+
+        {% if success_message %}
+        <p style="color: green;">{{ success_message }}</p>
+        {% endif %}
+
         {% if error_message %}
         <div class="row justify-content-center mt-4">
             <div class="col-md-8">
@@ -37,6 +42,7 @@
             </div>
         </div>
         {% endif %}
+
         <div class="row justify-content-center mt-4">
             <div class="col-md-8">
                 <div class="card shadow-sm">
@@ -48,11 +54,11 @@
                         <div class="col-12 mb-3">
                             <div class="weather-card d-flex align-items-center">
                                 <div class="mr-3">
-                                    <b>Город:</b> {{info.city}}<br>
-                                    <b>Температура:</b> {{info.temp}}<sup>0</sup>
-                                    <b>Запросили раз:</b> {{info.requests}}
+                                    <b>Город:</b> {{ info.city }}<br>
+                                    <b>Температура:</b> {{ info.temp }}<sup>0</sup><br>
+                                    <b>Запросили раз:</b> {{ info.requests|default:0 }}  <!-- Убедитесь, что поле requests существует -->
                                 </div>
-                                <img src="http://openweathermap.org/img/w/{{info.icon}}.png" alt="N/A" class="img-thumbnail mx-3" style="max-width: 50px;">
+                                <img src="https:{{ info.icon }}" alt="Иконка погоды" class="img-thumbnail mx-3" style="max-width: 50px;">
                             </div>
                         </div>
                     {% endfor %}
@@ -61,6 +67,7 @@
             </div>
         </div>
     </div>
+
     <!-- Подключение jQuery и Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
@@ -69,14 +76,14 @@
     <!-- Custom JS for Autocomplete -->
     <script>
         $(document).ready(function() {
-            $('#city-input').on('input', function() {
+            $('#id_name').on('input', function() {
                 let query = $(this).val();
                 if (query.length > 1) {
                     $.ajax({
                         url: `https://wft-geo-db.p.rapidapi.com/v1/geo/cities?namePrefix=${query}`,
                         method: 'GET',
                         headers: {
-                            'X-RapidAPI-Key': 'your-rapidapi-key',
+                            'X-RapidAPI-Key': 'your-rapidapi-key', 
                             'X-RapidAPI-Host': 'wft-geo-db.p.rapidapi.com'
                         },
                         success: function(data) {
@@ -92,7 +99,7 @@
             });
 
             $(document).on('click', '.suggestion-item', function() {
-                $('#city-input').val($(this).text());
+                $('#id_name').val($(this).text());
                 $('#suggestions').empty();
             });
         });

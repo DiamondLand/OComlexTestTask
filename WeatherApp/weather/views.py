@@ -1,42 +1,41 @@
 import requests
-
 from django.shortcuts import render
-
 from .models import City
 from .forms import CityForm
 
-
 def index(request):
-    appid='c56398aa9dd4ea5e0854302e39acf5a5'
-    url = 'https://api.openweathermap.org/data/2.5/weather?q={city}&appid={appid}&units=metric'
+    api_key = 'c269502293174e07abe130103242207'
+    url = 'https://api.weatherapi.com/v1/current.json?key={api_key}&q={city}&aqi=no'
 
-    cities = City.objects.all() # Получаем все данные их базы
-    all_cities = [] #* Общий список данных о погоде для передачи на фронт
+    cities = City.objects.all()  # Получаем все данные из базы
+    all_cities = []  # Общий список данных о погоде для передачи на фронт
     error_message = None
+    success_message = None
 
     if request.method == 'POST':
         form = CityForm(request.POST)
         if form.is_valid():
             city_name = form.cleaned_data['name']
             city, created = City.objects.get_or_create(name=city_name)
-            if not created:
-                city.request_count += 1
-                city.save()
+            if created:
+                success_message = f"Город '{city_name}' успешно добавлен!"
+            else:
+                error_message = f"Город '{city_name}' уже существует."
         else:
-            error_message = "Form is not valid. Errors: " + str(form.errors)
+            error_message = "Форма недействительна. Ошибки: " + str(form.errors)
 
-    form = CityForm() # Очищаем форму
+    form = CityForm()  # Очищаем форму
 
     for city in cities:
         try:
-            weather_response = requests.get(url=url.format(city=city.name, appid=appid))
+            weather_response = requests.get(url=url.format(city=city.name, api_key=api_key))
             weather_response.raise_for_status()
             weather_json = weather_response.json()
-            if 'main' in weather_json and 'weather' in weather_json:
+            if 'current' in weather_json:
                 city_info = {
                     'city': city.name,
-                    'temp': weather_json['main']['temp'],
-                    'icon': weather_json['weather'][0]['icon']
+                    'temp': weather_json['current']['temp_c'],
+                    'icon': weather_json['current']['condition']['icon']
                 }
             else:
                 city_info = {
@@ -57,5 +56,10 @@ def index(request):
     return render(
         request=request,
         template_name='weather/index.html',
-        context={'all_info': all_cities, 'form': form, 'error_message': error_message},
+        context={
+            'all_info': all_cities,
+            'form': form,
+            'error_message': error_message,
+            'success_message': success_message
+        },
     )
